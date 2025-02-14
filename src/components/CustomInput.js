@@ -1,123 +1,65 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, TextInput, Alert, StyleSheet } from "react-native";
-import CustomButton from "./CustomButton";
+import { View, TextInput, StyleSheet, Animated, TouchableOpacity } from "react-native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const HomeScreen = () => {
-  const [recipes, setRecipes] = useState([
-    {
-      id: "1",
-      title: "Spaghetti",
-      ingredients: ["Pasta", "Tomato Sauce", "Cheese"],
-      instructions: "Boil pasta, add sauce, and sprinkle cheese.",
-      isPublic: true,
-    },
-    {
-      id: "2",
-      title: "Tacos",
-      ingredients: ["Tortillas", "Beef", "Lettuce", "Cheese"],
-      instructions: "Fill tortillas with beef, lettuce, and cheese.",
-      isPublic: true,
-    },
-  ]);
+const CustomInput = ({ placeholder, isPassword, value, setValue }) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [hidePassword, setHidePassword] = useState(isPassword);
+  const borderColor = new Animated.Value(0);
 
-  const [newRecipe, setNewRecipe] = useState({
-    title: "",
-    ingredients: "",
-    instructions: "",
+  const handleFocus = () => {
+    setIsFocused(true);
+    Animated.timing(borderColor, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    Animated.timing(borderColor, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const animatedBorderColor = borderColor.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["#ccc", "#6200ea"],
   });
 
-  // Add Recipe Function
-  const addRecipe = () => {
-    if (!newRecipe.title || !newRecipe.ingredients || !newRecipe.instructions) {
-      Alert.alert("All fields are required!");
-      return;
-    }
-
-    const newRecipeObj = {
-      id: Math.random().toString(),
-      title: newRecipe.title,
-      ingredients: newRecipe.ingredients.split(","), // Convert ingredients to array
-      instructions: newRecipe.instructions,
-      isPublic: true, // Default to public
-    };
-
-    setRecipes([...recipes, newRecipeObj]);
-    setNewRecipe({ title: "", ingredients: "", instructions: "" });
-  };
-
-  // Remove Recipe Function
-  const removeRecipe = (id) => {
-    const updatedRecipes = recipes.filter((recipe) => recipe.id !== id);
-    setRecipes(updatedRecipes);
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>My Recipes</Text>
-
-      {/* Input Fields */}
+    <Animated.View style={[styles.container, { borderColor: animatedBorderColor }]}>
       <TextInput
         style={styles.input}
-        placeholder="Recipe Title"
-        value={newRecipe.title}
-        onChangeText={(text) => setNewRecipe({ ...newRecipe, title: text })}
+        placeholder={placeholder}
+        secureTextEntry={hidePassword}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        value={value}
+        onChangeText={setValue}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Ingredients (comma separated)"
-        value={newRecipe.ingredients}
-        onChangeText={(text) => setNewRecipe({ ...newRecipe, ingredients: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Instructions"
-        value={newRecipe.instructions}
-        onChangeText={(text) => setNewRecipe({ ...newRecipe, instructions: text })}
-      />
-
-      {/* Add Recipe Button */}
-      <CustomButton title="Add Recipe" onPress={addRecipe} />
-
-      {/* Recipe List */}
-      <FlatList
-        data={recipes}
-        renderItem={({ item }) => (
-          <View style={styles.recipeItem}>
-            <Text style={styles.recipeTitle}>{item.title}</Text>
-            <Text style={styles.recipeText}>Ingredients: {item.ingredients.join(", ")}</Text>
-            <Text style={styles.recipeText}>Instructions: {item.instructions}</Text>
-            <CustomButton title="Remove" onPress={() => removeRecipe(item.id)} />
-          </View>
-        )}
-        keyExtractor={(item) => item.id}
-      />
-
-      {/* Navigate to Public Recipes */}
-      <CustomButton title="Go to Public Recipes" onPress={() => alert("Navigating to public recipes...")} />
-    </View>
+      {isPassword && (
+        <TouchableOpacity onPress={() => setHidePassword(!hidePassword)}>
+          <Icon name={hidePassword ? "eye-off" : "eye"} size={24} color="gray" />
+        </TouchableOpacity>
+      )}
+    </Animated.View>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
-  container: { padding: 20, flex: 1, backgroundColor: "#fff" },
-  header: { fontSize: 24, fontWeight: "bold", textAlign: "center", marginBottom: 20 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    fontSize: 16,
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 2,
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    marginVertical: 10,
   },
-  recipeItem: {
-    padding: 10,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  recipeTitle: { fontSize: 18, fontWeight: "bold" },
-  recipeText: { fontSize: 14, marginTop: 3 },
+  input: { flex: 1, height: 47, fontSize: 15 },
 });
 
-export default HomeScreen;
+export default CustomInput;

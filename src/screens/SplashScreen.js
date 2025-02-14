@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Text, View, StyleSheet, Easing, Dimensions, ImageBackground } from 'react-native';
+import { Animated, Text, View, StyleSheet, Easing, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import foodpic from "../../assets/Ellipse10.png"; 
 import bgpic from "../../assets/image8.png"; 
-
-const { width, height } = Dimensions.get('window');
 
 const SplashScreen = () => {
   const navigation = useNavigation();
@@ -27,7 +26,7 @@ const SplashScreen = () => {
       }),
     ]).start(() => {
       setTimeout(() => {
-        navigation.replace('Home');
+        navigation.replace('auth');
       }, 3000);
     });
   }, [navigation]);
@@ -59,16 +58,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   centerImage: {
-    width: width * 0.5, 
-    height: width * 0.5,
+    width: wp(50),
+    height: wp(50),
     resizeMode: 'contain',
   },
   text: {
-    fontSize: width * 0.07,
+    fontSize: wp(7), 
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: hp(2),
     textTransform: "uppercase",
     letterSpacing: 1,
   },
